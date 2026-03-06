@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tax Dashboard</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>Tax Calculation Dashboard</h1>
+
+    <form method="POST" class="form-box">
+        <input type="number" step="0.01" name="gross" placeholder="Gross Income" required>
+        <input type="number" step="0.01" name="deductions" placeholder="Deductions" required>
+        <button type="submit">Calculate</button>
+    </form>
+
+    {% if results %}
+
+    <div class="cards">
+
+        <div class="card">
+            <h3>Gross</h3>
+            <p>€ {{ "%.2f"|format(results.gross) }}</p>
+        </div>
+
+        <div class="card">
+            <h3>Deductions</h3>
+            <p>€ {{ "%.2f"|format(results.deductions) }}</p>
+        </div>
+
+        <div class="card">
+            <h3>Taxable Income</h3>
+            <p>€ {{ "%.2f"|format(results.taxable_income) }}</p>
+        </div>
+
+        <div class="card">
+            <h3>Tax Payable</h3>
+            <p>€ {{ "%.2f"|format(results.tax_payable) }}</p>
+        </div>
+
+        <div class="card">
+            <h3>Net Income</h3>
+            <p>€ {{ "%.2f"|format(results.net_income) }}</p>
+        </div>
+
+        <div class="card">
+            <h3>Marginal Rate</h3>
+            <p>{{ "%.2f"|format(results.marginal_rate) }}%</p>
+        </div>
+
+    </div>
+
+    <div class="chart-container">
+        <canvas id="incomeChart"></canvas>
+        <p class="explanation">
+            This chart shows how your gross income is distributed across deductions, tax, and take-home income.
+        </p>
+    </div>
+
+    <script>
+        const chartValues = {{ chart_data | safe }};
+
+        const ctx = document.getElementById('incomeChart').getContext('2d');
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Gross', 'Deductions', 'Tax Payable', 'Net Income'],
+                datasets: [{
+                    data: chartValues,
+                    backgroundColor: [
+                        '#4e73df',
+                        '#f6c23e',
+                        '#e74a3b',
+                        '#1cc88a'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    </script>
+
+    {% endif %}
+
+    <h2>Last 5 Calculations</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Gross</th>
+                <th>Deductions</th>
+                <th>Taxable</th>
+                <th>Tax</th>
+                <th>Net</th>
+                <th>Rate (%)</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for row in history %}
+            <tr>
+                <td>€ {{ "%.2f"|format(row["gross"]) }}</td>
+                <td>€ {{ "%.2f"|format(row["deductions"]) }}</td>
+                <td>€ {{ "%.2f"|format(row["taxable_income"]) }}</td>
+                <td>€ {{ "%.2f"|format(row["tax_payable"]) }}</td>
+                <td>€ {{ "%.2f"|format(row["net_income"]) }}</td>
+                <td>{{ "%.2f"|format(row["marginal_rate"]) }}</td>
+                <td>{{ row["created_at"] }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+</html>
