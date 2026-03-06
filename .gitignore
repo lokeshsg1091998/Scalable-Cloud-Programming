@@ -1,5 +1,36 @@
+# Byte-compiled / cache
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+
+# Virtual environments
 venv/
+.venv/
+env/
+
+# Environment files
 .env
+.env.*
+
+# Django
+db.sqlite3
+*.log
+media/
+staticfiles/
+
+# VS Code
 .vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
